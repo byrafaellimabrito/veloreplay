@@ -81,7 +81,7 @@
 
   /* ---------- cotação online ---------- */
   async function buscarCotacao() {
-    if (C.modoCotacao !== "auto") { estado.fonte = "manual"; estado.ultimo = new Date(); return renderCot(true); }
+    if (C.modoCotacao !== "auto") { estado.fonte = "manual"; renderCot(true); return calcular(); }
     let mercado = null;
     try {
       const r = await fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL,PYG-BRL", { cache: "no-store" });
@@ -112,7 +112,7 @@
     $("pontoStatus").className = "ponto " + (ok ? "ok" : "err");
     const hora = (estado.ultimo || new Date()).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
     $("statusCot").textContent = ok
-      ? (estado.fonte === "online" ? "Cotação ao vivo · atualizada em " + hora : "Cotação do dia · " + hora)
+      ? (estado.fonte === "online" ? "Cotação ao vivo · atualizada em " + hora : "Cotação do dia · atualizada em " + hora)
       : "Sem conexão com a cotação online — usando cotação de referência";
   }
 
@@ -239,8 +239,26 @@
     $("modal").hidden = true;
   });
 
+  /* ---------- configuração do painel (Supabase) ---------- */
+  async function carregarConfigOnline() {
+    if (!C.supabaseUrl || !C.supabaseKey) return;
+    try {
+      const r = await fetch(C.supabaseUrl + "/rest/v1/settings?id=eq.1&select=data,updated_at", {
+        headers: { apikey: C.supabaseKey }, cache: "no-store"
+      });
+      const [row] = await r.json();
+      if (!row) return;
+      const d = row.data || {};
+      if (Array.isArray(d.faixasTaxa)) d.faixasTaxa = d.faixasTaxa.map((f) => ({ ate: f.ate == null ? Infinity : +f.ate, taxa: +f.taxa }));
+      Object.assign(C, d);
+      estado.taxas = { ...C.cotacaoManual };
+      estado.ultimo = new Date(row.updated_at);
+    } catch (e) { /* mantém config.js */ }
+  }
+
   /* ---------- inicialização ---------- */
-  function init() {
+  async function init() {
+    await carregarConfigOnline();
     if (C.aviso) { $("avisoTexto").textContent = C.aviso; $("aviso").hidden = false; }
     $("slogan").textContent = C.slogan;
     const zap = linkZap(C.whatsapp, "Olá! Vim pelo site da Vélore Pay e quero fazer um câmbio.");
@@ -257,7 +275,7 @@
     renderCot(true);
     calcular();
     buscarCotacao();
-    setInterval(buscarCotacao, (C.atualizarACadaSegundos || 60) * 1000);
+    setInterval(async () => { await carregarConfigOnline(); buscarCotacao(); }, (C.atualizarACadaSegundos || 60) * 1000);
   }
   init();
 })();

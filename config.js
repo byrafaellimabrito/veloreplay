@@ -3,6 +3,11 @@
    Edite este arquivo para mudar cotação, taxas, WhatsApp etc.
    ========================================================= */
 window.VELORE_CONFIG = {
+  // Banco de dados (Supabase) — o painel /admin.html grava aqui e o site lê.
+  // Os valores abaixo deste bloco só são usados se o banco estiver fora do ar.
+  supabaseUrl: "https://rmvuggmfoouvldgjyqxy.supabase.co",
+  supabaseKey: "sb_publishable_jEfQ91jvUeUWBk2U9DiWOw_Qe__bOIi",
+
   empresa: "Vélore Pay",
   slogan: "Crédito inteligente. Limite imediato.",
 
@@ -24,7 +29,7 @@ window.VELORE_CONFIG = {
      modo "auto": busca a cotação de mercado na internet e aplica o spread.
      modo "manual": usa os valores de cotacaoManual (quanto o cliente recebe por R$ 1).
   */
-  modoCotacao: "auto",
+  modoCotacao: "manual",
   spreadPercentual: { USD: 4.0, PYG: 3.0 }, // margem descontada da cotação de mercado
   cotacaoManual: { USD: 0.18, PYG: 1160 }, // usada no modo manual ou se a API falhar
   atualizarACadaSegundos: 60,
