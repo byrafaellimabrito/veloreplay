@@ -67,3 +67,11 @@
 .secundario.mini{justify-self:start;padding:8px 14px;font-size:14px}
 .campo textarea{background:var(--tinta);border:1px solid var(--fio);border-radius:8px;padding:12px;color:var(--marfim);font:inherit;outline:0;resize:vertical}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+#horasEdit input{width:100%;min-width:0}
+#horasEdit div>*{min-width:0}
+.faixas input{min-width:0}
+@media (max-width:480px){
+  #userEmail{display:none}
+  .adm{padding-left:16px;padding-right:16px}
+  .cota-campo input{font-size:38px}
+}

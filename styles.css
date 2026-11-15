@@ -113,3 +113,23 @@ button,input{font:inherit;color:inherit}
 .campo select{background:var(--tinta);border:1px solid var(--fio);border-radius:8px;padding:12px;color:var(--marfim);font-size:16px;outline:0}
 .nome span{display:block}
 .descontos{column-gap:0}.descontos dt,.descontos dd{padding-left:0}.descontos dd{padding-left:16px}
+
+/* responsividade: telas pequenas e valores grandes */
+.pagina>*,.conversor>*{min-width:0}
+.linha{grid-template-columns:40px minmax(0,1fr) auto}
+.nome{min-width:0}
+.montante{font-size:clamp(22px,6.6vw,34px)}
+@media (max-width:400px){
+  .barra{padding:12px 16px}
+  .pagina{padding-left:16px;padding-right:16px}
+  .falar span{display:none}
+  .falar{padding:8px}
+  .linha{grid-template-columns:36px minmax(0,1fr);row-gap:6px;column-gap:12px}
+  .bandeira{width:36px;height:36px}
+  .montante{grid-column:2;text-align:left;font-size:30px}
+  .atalhos{display:grid;grid-template-columns:repeat(4,1fr)}
+  .atalhos button{padding:6px 4px}
+  .atalhos button::before{content:""}
+}
+.resumo b{white-space:nowrap}
+.campo input,.campo textarea,.campo select{width:100%;min-width:0}.opcao>*,.opcao-corpo>*,.campo{min-width:0}
