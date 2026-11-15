@@ -2,106 +2,94 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Painel — Vélore Pay</title>
+  <meta name="theme-color" content="#17140F" />
   <link rel="icon" href="assets/logo.jpg" />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
-  <header class="topo">
-    <div class="wrap topo-in adm-wrap">
-      <a class="marca" href="index.html"><img src="assets/logo.jpg" alt="" /><span><strong>VÉLORE</strong> PAY · PAINEL</span></a>
-      <div class="adm-user" id="userBox" hidden><span id="userEmail"></span><button class="btn-sec mini" id="btnSair">Sair</button></div>
+  <header class="barra">
+    <a class="marca" href="./" aria-label="Abrir o site">
+      <img src="assets/logo.jpg" alt="" width="36" height="36" />
+      <span>Vélore Pay <em>Painel</em></span>
+    </a>
+    <div class="conta" id="conta" hidden>
+      <span id="userEmail"></span>
+      <button type="button" class="secundario" id="btnSair">Sair</button>
     </div>
   </header>
 
-  <main class="wrap adm-wrap">
-    <!-- LOGIN -->
-    <section class="adm-card login" id="telaLogin">
-      <img src="assets/logo.jpg" alt="" class="login-logo" />
-      <h1>Área administrativa</h1>
-      <p class="muted">Entre com o e-mail de administrador.</p>
-      <label class="campo"><span>E-mail</span><input id="loginEmail" type="email" autocomplete="username" /></label>
-      <label class="campo"><span>Senha</span><input id="loginSenha" type="password" autocomplete="current-password" /></label>
-      <button class="btn-pedido" id="btnEntrar">Entrar</button>
-      <div class="login-links">
-        <button class="link" id="btnCriar">Primeiro acesso? Criar senha</button>
-        <button class="link" id="btnEsqueci">Esqueci a senha</button>
-      </div>
-      <p class="msg" id="msgLogin"></p>
-    </section>
+  <main class="adm">
+    <!-- login -->
+    <form class="entrar" id="telaLogin">
+      <h1>Entrar no painel</h1>
+      <label class="campo">E-mail<input id="loginEmail" type="email" autocomplete="username" required /></label>
+      <label class="campo">Senha<input id="loginSenha" type="password" autocomplete="current-password" required /></label>
+      <button class="acao" type="submit">Entrar</button>
+      <p class="msg" id="msgLogin" role="status"></p>
+    </form>
 
-    <!-- PAINEL -->
     <div id="telaPainel" hidden>
-      <section class="adm-card destaque">
-        <div class="adm-head">
-          <h2>💱 Cotação do dia</h2>
-          <small class="muted" id="ultimaAtualizacao"></small>
+      <!-- cotação -->
+      <form class="bloco" id="formCot">
+        <div class="cabeca">
+          <h1>Cotação</h1>
+          <p class="sub" id="ultima"></p>
         </div>
 
-        <div class="modo-cot">
-          <label><input type="radio" name="modo" value="manual" /> <b>Manual</b> — eu defino a cotação</label>
-          <label><input type="radio" name="modo" value="auto" /> <b>Automática</b> — mercado − margem</label>
+        <div class="cotas">
+          <label class="cota">
+            <span class="cota-nome">Dólar</span>
+            <span class="cota-explica">Quanto custa US$ 1 em reais</span>
+            <span class="cota-campo"><i>R$</i><input id="usd" inputmode="decimal" autocomplete="off" required /></span>
+          </label>
+          <label class="cota">
+            <span class="cota-nome">Guarani</span>
+            <span class="cota-explica">Quantos guaranis por R$ 1</span>
+            <span class="cota-campo"><i>Gs.</i><input id="pyg" inputmode="decimal" autocomplete="off" required /></span>
+          </label>
         </div>
 
-        <div class="grid2">
-          <div class="cot-edit">
-            <div class="cot-tit"><div class="bandeira us"></div><div><b>Dólar (USD)</b><small>Preço de venda de US$ 1</small></div></div>
-            <div class="input-moeda"><em>R$</em><input id="precoUSD" inputmode="decimal" placeholder="5,60" /></div>
-            <small class="conv" id="convUSD"></small>
-            <small class="mercado" id="mercUSD"></small>
-          </div>
-          <div class="cot-edit">
-            <div class="cot-tit"><div class="bandeira py"></div><div><b>Guarani (PYG)</b><small>Quanto o cliente recebe por R$ 1</small></div></div>
-            <div class="input-moeda"><em>Gs.</em><input id="cotPYGin" inputmode="decimal" placeholder="1.160" /></div>
-            <small class="conv" id="convPYG"></small>
-            <small class="mercado" id="mercPYG"></small>
-          </div>
-        </div>
+        <p class="previa" id="previa"></p>
+        <button class="acao" type="submit" id="btnCot">Publicar cotação</button>
+        <p class="msg" id="msgCot" role="status"></p>
+      </form>
 
-        <div class="grid2 auto-only">
-          <label class="campo"><span>Margem dólar (%) — modo automático</span><input id="spreadUSD" inputmode="decimal" /></label>
-          <label class="campo"><span>Margem guarani (%) — modo automático</span><input id="spreadPYG" inputmode="decimal" /></label>
-        </div>
-
-        <button class="btn-pedido" id="btnSalvarCot">Salvar cotação</button>
-        <p class="msg" id="msgCot"></p>
+      <!-- histórico -->
+      <section class="bloco">
+        <h2>Alterações recentes</h2>
+        <table class="hist">
+          <thead><tr><th>Quando</th><th>Dólar</th><th>Guarani</th><th>Quem</th></tr></thead>
+          <tbody id="hist"></tbody>
+        </table>
       </section>
 
-      <section class="adm-card">
-        <h2>Taxas de serviço</h2>
-        <table class="tabela edit" id="tblFaixas"><thead><tr><th>Até (R$)</th><th>Taxa (R$)</th><th></th></tr></thead><tbody></tbody></table>
-        <button class="btn-sec mini" id="btnAddFaixa">+ Adicionar faixa</button>
-        <p class="muted mini">Deixe "Até" vazio na última faixa para valer "acima de".</p>
-        <label class="campo"><span>Taxa de entrega (R$) — 0 = grátis</span><input id="taxaEntrega" inputmode="decimal" /></label>
-      </section>
-
-      <section class="adm-card">
+      <!-- contato -->
+      <form class="bloco" id="formGeral">
         <h2>Atendimento</h2>
-        <div class="grid2">
-          <label class="campo"><span>WhatsApp dos pedidos (55 + DDD + número)</span><input id="whatsapp" inputmode="numeric" /></label>
-          <label class="campo"><span>WhatsApp secundário (opcional)</span><input id="whatsapp2" inputmode="numeric" /></label>
+        <div class="dupla">
+          <label class="campo">WhatsApp que recebe os pedidos<input id="whatsapp" inputmode="tel" placeholder="55 75 99999-9999" required /></label>
+          <label class="campo">Segundo WhatsApp (opcional)<input id="whatsapp2" inputmode="tel" /></label>
         </div>
-        <label class="campo"><span>Aviso no topo do site (vazio = esconder)</span><input id="aviso" /></label>
-        <label class="campo"><span>Pontos de retirada (um por linha)</span><textarea id="pontos" rows="3"></textarea></label>
-        <span class="lbl">Horários</span>
-        <div id="horariosEdit" class="horarios-edit"></div>
-        <button class="btn-pedido" id="btnSalvarGeral">Salvar alterações</button>
-        <p class="msg" id="msgGeral"></p>
-      </section>
-
-      <section class="adm-card">
-        <h2>Histórico de cotações</h2>
-        <table class="tabela" id="tblHist"><thead><tr><th>Data</th><th>Dólar</th><th>Guarani</th><th>Por</th></tr></thead><tbody></tbody></table>
-      </section>
+        <label class="campo">Aviso no topo do site<input id="aviso" placeholder="Deixe em branco para não mostrar" /></label>
+        <fieldset class="horas">
+          <legend>Horários de atendimento</legend>
+          <div id="horasEdit"></div>
+        </fieldset>
+        <button class="acao" type="submit">Salvar atendimento</button>
+        <p class="msg" id="msgGeral" role="status"></p>
+      </form>
     </div>
 
-    <section class="adm-card" id="telaSemAcesso" hidden>
-      <h2>Sem permissão</h2>
-      <p class="muted">Este e-mail não está cadastrado como administrador. Peça ao responsável para liberar o acesso.</p>
+    <section class="bloco" id="telaSemAcesso" hidden>
+      <h1>Sem permissão</h1>
+      <p class="sub">Este e-mail não está liberado para alterar a cotação. Peça ao responsável para liberar o acesso.</p>
     </section>
   </main>
 

@@ -2,18 +2,11 @@
 
 Site de cotação e calculadora de câmbio: o cliente paga no PIX e recebe em **Dólar (USD)** ou **Guarani (PYG)**.
 
-## Funcionalidades
-- Cotação ao vivo (AwesomeAPI, com fallback na open.er-api) com **spread configurável** por moeda, atualizada a cada 60s
-- Modo **manual** de cotação (você define o valor do dia)
-- Calculadora em dois sentidos: **"Quero pagar"** (digita R$) e **"Quero receber"** (digita US$ ou Gs.)
-- Guarani em múltiplos de 50.000 (notas de 50 mil e 100 mil), com arredondamento automático
-- Taxa de serviço por faixa + taxa de entrega opcional; tabela de taxas exibida no site
-- Retirada (pontos configuráveis) ou entrega com endereço
-- Pedido enviado pelo **WhatsApp** com mensagem pronta (nome, moeda, cotação, taxas, total no PIX); segundo WhatsApp opcional
-- Layout responsivo preto e dourado, botão flutuante de WhatsApp
-
-## Configuração
-Tudo fica em **`config.js`**: WhatsApp, horários, aviso do topo, modo de cotação, spread, cotação manual, faixas de taxa, taxa de entrega e pontos de retirada.
+## Como funciona
+- O cliente abre o link, digita quanto vai enviar no PIX (R$) e vê na hora quanto recebe em **dólar** e em **guarani**.
+- Conversão direta pela cotação do dia: dólar = R$ por US$ 1; guarani = Gs. por R$ 1.
+- Botão "Fazer pedido no WhatsApp" abre a conversa com nome, valor do PIX, moeda e cotação.
+- O site busca a cotação no banco a cada 30 segundos e quando a aba volta a ficar visível.
 
 ## Publicação
 Site 100% estático (HTML/CSS/JS, sem build).
