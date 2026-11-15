@@ -14,10 +14,29 @@
     return isFinite(n) ? n : 0;
   };
 
-  const converter = (brl) => ({
-    usd: C.cotacao.usd > 0 ? Math.floor((brl / C.cotacao.usd) * 100) / 100 : 0,
-    pyg: Math.floor(brl * C.cotacao.pyg)
+  const opc = () => ({
+    taxas: C.taxas && C.taxas.ativo ? C.taxas : null,
+    entrega: C.entrega && C.entrega.ativo ? C.entrega : null,
+    arred: C.arredondarGuarani && C.arredondarGuarani.ativo && C.arredondarGuarani.multiplo > 1 ? C.arredondarGuarani.multiplo : 0
   });
+  const forma = () => (document.querySelector('input[name="forma"]:checked') || {}).value || "retirada";
+  const taxaPorFaixa = (brl, faixas) => {
+    for (const f of faixas || []) if (f.ate == null || brl <= f.ate) return +f.taxa || 0;
+    return 0;
+  };
+  function converter(brl) {
+    const o = opc();
+    const taxa = o.taxas && brl > 0 ? taxaPorFaixa(brl, o.taxas.faixas) : 0;
+    const entrega = o.entrega && forma() === "entrega" && brl > 0 ? +o.entrega.taxa || 0 : 0;
+    const base = Math.max(brl - taxa - entrega, 0);
+    let pyg = Math.floor(base * C.cotacao.pyg);
+    if (o.arred) pyg = Math.floor(pyg / o.arred) * o.arred;
+    return {
+      brl, taxa, entrega, base,
+      usd: C.cotacao.usd > 0 ? Math.floor((base / C.cotacao.usd) * 100) / 100 : 0,
+      pyg
+    };
+  }
 
   function render() {
     const brl = parseNum($("valorBRL").value);
@@ -26,7 +45,14 @@
     $("outPYG").textContent = "Gs. " + fmt(r.pyg, 0);
     $("taxaUSD").textContent = "US$ 1 = R$ " + fmt(C.cotacao.usd, 2);
     $("taxaPYG").textContent = "R$ 1 = Gs. " + fmt(C.cotacao.pyg, 0);
-    $("btnPedido").disabled = !(brl > 0);
+    $("notasPYG").hidden = !opc().arred;
+    $("notasPYG").textContent = opc().arred ? "Em notas de " + fmt(opc().arred, 0) : "";
+    const d = $("descontos");
+    d.hidden = !(r.taxa || r.entrega);
+    d.innerHTML = (r.taxa ? `<dt>Taxa de serviço</dt><dd>− R$ ${fmt(r.taxa, 2)}</dd>` : "") +
+      (r.entrega ? `<dt>Entrega</dt><dd>− R$ ${fmt(r.entrega, 2)}</dd>` : "") +
+      `<dt class="total">Valor convertido</dt><dd class="total">R$ ${fmt(r.base, 2)}</dd>`;
+    $("btnPedido").disabled = !(r.base > 0);
     $("opUSD").innerHTML = "Dólar<small>US$ " + fmt(r.usd, 2) + "</small>";
     $("opPYG").innerHTML = "Guarani<small>Gs. " + fmt(r.pyg, 0) + "</small>";
     resumo();
@@ -54,6 +80,13 @@
   }
 
   function aplicarConfig() {
+    const o = opc();
+    $("forma").hidden = !o.entrega;
+    if (o.entrega) $("lblEntrega").textContent = +o.entrega.taxa ? "+ R$ " + fmt(+o.entrega.taxa, 2) : "Sem custo";
+    const pontos = (o.entrega && o.entrega.pontos) || [];
+    $("pontoRetirada").innerHTML = pontos.map((p) => `<option>${esc(p)}</option>`).join("");
+    $("notaTaxa").hidden = !o.taxas;
+    $("notaTaxa").textContent = o.taxas ? "A taxa de serviço é descontada do valor do PIX e varia conforme o valor enviado." : "";
     const zap = "https://wa.me/" + C.whatsapp + "?text=" + encodeURIComponent("Olá! Quero fazer um câmbio pela Vélore Pay.");
     $("linkZap").href = zap;
     $("aviso").hidden = !C.aviso; $("aviso").textContent = C.aviso || "";
@@ -75,7 +108,12 @@
     const brl = parseNum(input.value), r = converter(brl), m = moedaEscolhida();
     $("resumo").innerHTML = `PIX de <b>R$ ${fmt(brl, 2)}</b> para receber <b>${m === "usd" ? "US$ " + fmt(r.usd, 2) : "Gs. " + fmt(r.pyg, 0)}</b>`;
   }
-  $("btnPedido").addEventListener("click", () => { folha.hidden = false; resumo(); setTimeout(() => $("nome").focus(), 50); });
+  document.querySelectorAll('input[name="forma"]').forEach((r) => r.addEventListener("change", render));
+  $("btnPedido").addEventListener("click", () => {
+    const o = opc(), ent = o.entrega && forma() === "entrega";
+    $("campoEndereco").hidden = !ent;
+    $("campoPonto").hidden = !(o.entrega && !ent && $("pontoRetirada").options.length);
+    folha.hidden = false; resumo(); setTimeout(() => $("nome").focus(), 50); });
   folha.querySelectorAll("[data-fechar]").forEach((el) => el.addEventListener("click", () => (folha.hidden = true)));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") folha.hidden = true; });
   document.querySelectorAll('input[name="moeda"]').forEach((r) => r.addEventListener("change", resumo));
@@ -90,9 +128,13 @@
       "",
       "Nome: " + nome,
       "Vou enviar no PIX: R$ " + fmt(brl, 2),
+      ...(r.taxa ? ["Taxa de serviço: R$ " + fmt(r.taxa, 2)] : []),
+      ...(r.entrega ? ["Entrega: R$ " + fmt(r.entrega, 2)] : []),
+      ...(r.taxa || r.entrega ? ["Valor convertido: R$ " + fmt(r.base, 2)] : []),
       m === "usd"
         ? "Quero receber: US$ " + fmt(r.usd, 2) + " (US$ 1 = R$ " + fmt(C.cotacao.usd, 2) + ")"
         : "Quero receber: Gs. " + fmt(r.pyg, 0) + " (R$ 1 = Gs. " + fmt(C.cotacao.pyg, 0) + ")",
+      ...(opc().entrega ? ["", forma() === "entrega" ? "Entrega em: " + ($("endereco").value.trim() || "(vou informar)") : "Retirada" + ($("pontoRetirada").value ? ": " + $("pontoRetirada").value : "")] : []),
       "",
       "Aguardo a confirmação para fazer o PIX."
     ].join("\n");

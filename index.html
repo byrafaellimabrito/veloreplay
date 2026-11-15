@@ -45,6 +45,14 @@
         <button type="button" data-v="5000">5.000</button>
       </div>
 
+      <fieldset class="forma" id="forma" hidden>
+        <legend>Como quer receber</legend>
+        <label><input type="radio" name="forma" value="retirada" checked /><span>Retirar com a gente<small>Sem custo</small></span></label>
+        <label><input type="radio" name="forma" value="entrega" /><span>Entrega<small id="lblEntrega"></small></span></label>
+      </fieldset>
+
+      <dl class="descontos" id="descontos" hidden></dl>
+
       <p class="recebe-rotulo">Você recebe</p>
       <ul class="resultados">
         <li class="linha" data-moeda="usd">
@@ -68,7 +76,7 @@
               <circle cx="20" cy="20" r="4.2" fill="none" stroke="#1B6B3A" stroke-width="1.1"/><circle cx="20" cy="20" r="1.6" fill="#F2C200"/>
             </g>
           </svg>
-          <div class="nome"><strong>Guarani</strong><span id="taxaPYG">R$ 1 = Gs. —</span></div>
+          <div class="nome"><strong>Guarani</strong><span id="taxaPYG">R$ 1 = Gs. —</span><span id="notasPYG" hidden></span></div>
           <output class="montante" id="outPYG" for="valorBRL">Gs. 0</output>
         </li>
       </ul>
@@ -76,6 +84,7 @@
       <p class="atualizacao"><span class="ponto" id="ponto"></span><span id="status">Carregando a cotação de hoje</span></p>
 
       <button class="acao" id="btnPedido" type="button" disabled>Fazer pedido no WhatsApp</button>
+      <p class="nota" id="notaTaxa" hidden></p>
       <p class="nota">Seu pedido chega para a nossa equipe, que confirma a cotação antes de você fazer o PIX.</p>
     </section>
 
@@ -96,6 +105,8 @@
         <label><input type="radio" name="moeda" value="pyg" /><span id="opPYG">Guarani</span></label>
       </fieldset>
       <label class="campo">Seu nome<input id="nome" autocomplete="name" required /></label>
+      <label class="campo" id="campoPonto" hidden>Onde vai retirar<select id="pontoRetirada"></select></label>
+      <label class="campo" id="campoEndereco" hidden>Endereço para entrega<input id="endereco" autocomplete="street-address" /></label>
       <p class="resumo" id="resumo"></p>
       <div class="folha-botoes">
         <button type="button" class="secundario" data-fechar>Voltar</button>

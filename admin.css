@@ -48,3 +48,22 @@
 @media (max-width:520px){.hist th:last-child,.hist td:last-child{display:none}}
 .bloco>*,.cota{min-width:0}.cota-campo input{width:100%}
 .barra{max-width:720px}
+
+.opcao{border:1px solid var(--fio);border-radius:10px;padding:14px 16px;display:grid;gap:14px}
+.chave{display:flex;align-items:center;gap:12px;cursor:pointer;font-weight:500}
+.chave input{appearance:none;width:40px;height:22px;border-radius:999px;background:var(--fio);position:relative;cursor:pointer;flex:none;transition:background .15s}
+.chave input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--marfim);transition:transform .15s}
+.chave input:checked{background:var(--ouro)}
+.chave input:checked::after{transform:translateX(18px);background:var(--tinta)}
+.opcao-corpo{display:grid;gap:12px}
+.faixas{width:100%;border-collapse:collapse;font-size:14px}
+.faixas th{text-align:left;font-weight:400;color:var(--apagado);padding:0 8px 6px 0}
+.faixas td{padding:4px 8px 4px 0}
+.faixas td:last-child{width:36px}
+.faixas input{width:100%;background:var(--tinta);border:1px solid var(--fio);border-radius:8px;padding:9px 10px;outline:0;font-variant-numeric:tabular-nums}
+.faixas input:focus,.campo textarea:focus{border-color:var(--ouro)}
+.remover{background:none;border:0;color:var(--apagado);font-size:20px;line-height:1;cursor:pointer;padding:4px}
+.remover:hover{color:#E39283}
+.secundario.mini{justify-self:start;padding:8px 14px;font-size:14px}
+.campo textarea{background:var(--tinta);border:1px solid var(--fio);border-radius:8px;padding:12px;color:var(--marfim);font:inherit;outline:0;resize:vertical}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}

@@ -70,6 +70,41 @@
         </table>
       </section>
 
+      <!-- opcionais -->
+      <form class="bloco" id="formOpc">
+        <div>
+          <h2>Opcionais</h2>
+          <p class="sub">Ficam desligados até você ativar. Quando ligados, aparecem para o cliente na hora.</p>
+        </div>
+
+        <div class="opcao">
+          <label class="chave"><input type="checkbox" id="taxasAtivo" /><span>Cobrar taxa de serviço</span></label>
+          <div class="opcao-corpo" data-de="taxasAtivo">
+            <p class="sub">A taxa é descontada do valor do PIX, de acordo com a faixa. Deixe "até" vazio na última faixa para valer acima disso.</p>
+            <table class="faixas"><thead><tr><th>PIX até (R$)</th><th>Taxa (R$)</th><th><span class="sr">Remover</span></th></tr></thead><tbody id="faixas"></tbody></table>
+            <button type="button" class="secundario mini" id="addFaixa">Adicionar faixa</button>
+          </div>
+        </div>
+
+        <div class="opcao">
+          <label class="chave"><input type="checkbox" id="entregaAtivo" /><span>Oferecer retirada e entrega</span></label>
+          <div class="opcao-corpo" data-de="entregaAtivo">
+            <label class="campo">Taxa de entrega (R$)<input id="taxaEntrega" inputmode="decimal" placeholder="0,00" /></label>
+            <label class="campo">Pontos de retirada, um por linha<textarea id="pontos" rows="3"></textarea></label>
+          </div>
+        </div>
+
+        <div class="opcao">
+          <label class="chave"><input type="checkbox" id="arredAtivo" /><span>Arredondar o guarani para notas</span></label>
+          <div class="opcao-corpo" data-de="arredAtivo">
+            <label class="campo">Arredondar para baixo em múltiplos de (Gs.)<input id="multiplo" inputmode="numeric" placeholder="50.000" /></label>
+          </div>
+        </div>
+
+        <button class="acao" type="submit">Salvar opcionais</button>
+        <p class="msg" id="msgOpc" role="status"></p>
+      </form>
+
       <!-- contato -->
       <form class="bloco" id="formGeral">
         <h2>Atendimento</h2>

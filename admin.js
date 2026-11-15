@@ -61,6 +61,16 @@ async function carregar() {
   const horas = dados.horarios?.length ? dados.horarios : [{ dia: "", hora: "" }];
   $("horasEdit").innerHTML = horas.map((h) =>
     `<div><input aria-label="Dia" value="${esc(h.dia)}" placeholder="Seg a Sex" /><input aria-label="Horário" value="${esc(h.hora)}" placeholder="09h às 17h" /></div>`).join("");
+  // opcionais
+  const t = dados.taxas || {}, en = dados.entrega || {}, ar = dados.arredondarGuarani || {};
+  $("taxasAtivo").checked = !!t.ativo;
+  renderFaixas(t.faixas?.length ? t.faixas : [{ ate: 100, taxa: 5 }, { ate: 500, taxa: 10 }, { ate: null, taxa: 20 }]);
+  $("entregaAtivo").checked = !!en.ativo;
+  $("taxaEntrega").value = en.taxa != null ? fmt(en.taxa, 2) : "";
+  $("pontos").value = (en.pontos || []).join("\n");
+  $("arredAtivo").checked = !!ar.ativo;
+  $("multiplo").value = fmt(ar.multiplo || 50000, 0);
+  mostrarOpcoes();
   previa();
   historico();
 }
@@ -98,6 +108,37 @@ $("formGeral").addEventListener("submit", (e) => {
     "msgGeral", "Atendimento salvo.");
 });
 
+function renderFaixas(faixas) {
+  $("faixas").innerHTML = faixas.map((f) =>
+    `<tr><td><input aria-label="PIX até" inputmode="decimal" value="${f.ate == null ? "" : fmt(f.ate, 2)}" placeholder="acima disso" /></td>` +
+    `<td><input aria-label="Taxa" inputmode="decimal" value="${fmt(f.taxa ?? 0, 2)}" /></td>` +
+    `<td><button type="button" class="remover" aria-label="Remover faixa">×</button></td></tr>`).join("");
+}
+const lerFaixas = () => [...$("faixas").rows].map((tr) => {
+  const ate = parseNum(tr.cells[0].querySelector("input").value), taxa = parseNum(tr.cells[1].querySelector("input").value);
+  return { ate: isNaN(ate) ? null : ate, taxa: isNaN(taxa) ? 0 : taxa };
+});
+$("faixas").addEventListener("click", (e) => { if (e.target.classList.contains("remover")) e.target.closest("tr").remove(); });
+$("addFaixa").addEventListener("click", () => renderFaixas([...lerFaixas(), { ate: null, taxa: 0 }]));
+function mostrarOpcoes() {
+  document.querySelectorAll(".opcao-corpo").forEach((el) => (el.hidden = !$(el.dataset.de).checked));
+}
+["taxasAtivo", "entregaAtivo", "arredAtivo"].forEach((id) => $(id).addEventListener("change", mostrarOpcoes));
+
+$("formOpc").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const faixas = lerFaixas().sort((a, b) => (a.ate ?? Infinity) - (b.ate ?? Infinity));
+  if ($("taxasAtivo").checked && !faixas.length) return msg("msgOpc", "Adicione pelo menos uma faixa de taxa.", "erro");
+  const te = parseNum($("taxaEntrega").value), mult = parseNum($("multiplo").value);
+  if ($("arredAtivo").checked && !(mult > 1)) return msg("msgOpc", "Informe o múltiplo do arredondamento, por exemplo 50.000.", "erro");
+  salvar({
+    ...dados,
+    taxas: { ativo: $("taxasAtivo").checked, faixas },
+    entrega: { ativo: $("entregaAtivo").checked, taxa: isNaN(te) ? 0 : te, pontos: $("pontos").value.split("\n").map((x) => x.trim()).filter(Boolean) },
+    arredondarGuarani: { ativo: $("arredAtivo").checked, multiplo: isNaN(mult) ? 50000 : mult }
+  }, "msgOpc", "Opcionais salvos. O site já mostra as mudanças.");
+});
+
 async function historico() {
   const { data } = await sb.from("rate_history").select("created_at, usd, pyg, by_email").order("created_at", { ascending: false }).limit(15);
   $("hist").innerHTML = data?.length
@@ -105,4 +146,5 @@ async function historico() {
     : `<tr><td colspan="4" class="vazio">As próximas mudanças de cotação aparecem aqui.</td></tr>`;
 }
 
+mostrarOpcoes();
 verificar();
