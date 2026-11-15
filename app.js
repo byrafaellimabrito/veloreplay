@@ -4,6 +4,7 @@
   const $ = (id) => document.getElementById(id);
   let atualizadoEm = null;
   let online = false;
+  let automatica = false;
 
   const fmt = (v, casas) => v.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
   const parseNum = (s) => {
@@ -75,6 +76,15 @@
       Object.assign(C, row.data || {});
       atualizadoEm = new Date(row.updated_at);
       online = true;
+      automatica = false;
+      if (C.modo === "auto") {
+        try {
+          const m = await window.buscarMercado();
+          C.cotacao = window.cotacaoComMargem(m, C.auto);
+          atualizadoEm = m.quando;
+          automatica = true;
+        } catch (e) { /* mercado fora do ar: usa a cotação manual do painel */ }
+      }
     } catch (e) { online = false; }
     aplicarConfig(); render(); renderStatus();
   }

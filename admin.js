@@ -53,6 +53,10 @@ async function carregar() {
   if (error) return msg("msgCot", "Não foi possível carregar: " + error.message, "erro");
   dados = data.data;
   $("ultima").textContent = "Última alteração: " + quando(data.updated_at).toLowerCase() + (data.updated_by ? ", por " + data.updated_by : "");
+  document.querySelector(`input[name="modo"][value="${dados.modo === "auto" ? "auto" : "manual"}"]`).checked = true;
+  $("margemUsd").value = fmt(dados.auto?.margemUsd ?? 3, 1);
+  $("margemPyg").value = fmt(dados.auto?.margemPyg ?? 3, 1);
+  mostrarModo();
   $("usd").value = fmt(dados.cotacao?.usd ?? 0, 2);
   $("pyg").value = fmt(dados.cotacao?.pyg ?? 0, 0);
   $("whatsapp").value = dados.whatsapp || "";
@@ -82,6 +86,36 @@ function previa() {
 }
 ["usd", "pyg"].forEach((id) => $(id).addEventListener("input", previa));
 
+/* modo automático */
+let mercado = null;
+const modoAtual = () => document.querySelector('input[name="modo"]:checked').value;
+function mostrarModo() {
+  const auto = modoAtual() === "auto";
+  $("blocoAuto").hidden = !auto;
+  $("tituloManual").hidden = !auto;
+  $("btnCot").textContent = auto ? "Salvar e usar cotação automática" : "Publicar cotação";
+  if (auto && !mercado) atualizarMercado();
+  previaAuto();
+}
+document.querySelectorAll('input[name="modo"]').forEach((r) => r.addEventListener("change", mostrarModo));
+["margemUsd", "margemPyg"].forEach((id) => $(id).addEventListener("input", previaAuto));
+async function atualizarMercado() {
+  try {
+    mercado = await window.buscarMercado();
+    $("mercado").innerHTML = `Mercado agora (${mercado.fonte}, ${quando(mercado.quando).toLowerCase()}): <b>US$ 1 = R$ ${fmt(mercado.usd, 4)}</b> e <b>R$ 1 = Gs. ${fmt(mercado.pyg, 0)}</b>`;
+  } catch (e) {
+    mercado = null;
+    $("mercado").textContent = "Não foi possível consultar o mercado agora. Enquanto isso, o site usa a cotação manual.";
+  }
+  previaAuto();
+}
+function previaAuto() {
+  if (!mercado) { $("previaAuto").textContent = ""; return; }
+  const c = window.cotacaoComMargem(mercado, { margemUsd: parseNum($("margemUsd").value) || 0, margemPyg: parseNum($("margemPyg").value) || 0 });
+  $("previaAuto").innerHTML = `O cliente vai ver <b>US$ 1 = R$ ${fmt(c.usd, 2)}</b> e <b>R$ 1 = Gs. ${fmt(c.pyg, 0)}</b>. Um PIX de R$ 100,00 mostra <b>US$ ${fmt(Math.floor(100 / c.usd * 100) / 100, 2)}</b> e <b>Gs. ${fmt(Math.floor(100 * c.pyg), 0)}</b>.`;
+}
+setInterval(() => { if (modoAtual() === "auto") atualizarMercado(); }, 60000);
+
 async function salvar(novo, msgId, texto) {
   msg(msgId, "Salvando…");
   const { error } = await sb.from("settings").update({ data: novo }).eq("id", 1);
@@ -94,7 +128,10 @@ $("formCot").addEventListener("submit", (e) => {
   e.preventDefault();
   const u = parseNum($("usd").value), g = parseNum($("pyg").value);
   if (!(u > 0) || !(g > 0)) return msg("msgCot", "Preencha o dólar e o guarani com valores maiores que zero.", "erro");
-  salvar({ ...dados, cotacao: { usd: u, pyg: g } }, "msgCot", "Cotação publicada. O site já mostra os novos valores.");
+  const auto = modoAtual() === "auto";
+  const mu = parseNum($("margemUsd").value), mp = parseNum($("margemPyg").value);
+  salvar({ ...dados, cotacao: { usd: u, pyg: g }, modo: auto ? "auto" : "manual", auto: { margemUsd: isNaN(mu) ? 0 : mu, margemPyg: isNaN(mp) ? 0 : mp } },
+    "msgCot", auto ? "Cotação automática ligada. O site já usa o mercado com a margem." : "Cotação publicada. O site já mostra os novos valores.");
 });
 
 $("formGeral").addEventListener("submit", (e) => {

@@ -43,6 +43,23 @@
           <p class="sub" id="ultima"></p>
         </div>
 
+        <fieldset class="modo">
+          <legend class="sr">Como definir a cotação</legend>
+          <label><input type="radio" name="modo" value="manual" checked /><span>Manual<small>Vocês digitam a cotação</small></span></label>
+          <label><input type="radio" name="modo" value="auto" /><span>Automática<small>Mercado com a margem de vocês</small></span></label>
+        </fieldset>
+
+        <div class="auto" id="blocoAuto" hidden>
+          <p class="sub" id="mercado">Buscando a cotação de mercado…</p>
+          <div class="dupla">
+            <label class="campo">Margem no dólar (%)<input id="margemUsd" inputmode="decimal" placeholder="3,0" /></label>
+            <label class="campo">Margem no guarani (%)<input id="margemPyg" inputmode="decimal" placeholder="3,0" /></label>
+          </div>
+          <p class="previa" id="previaAuto"></p>
+          <p class="sub">O site busca o mercado sozinho e aplica a margem. Se a fonte cair, ele usa a cotação manual abaixo.</p>
+        </div>
+
+        <p class="sub" id="tituloManual" hidden>Cotação manual de reserva</p>
         <div class="cotas">
           <label class="cota">
             <span class="cota-nome">Dólar</span>
@@ -129,6 +146,7 @@
   </main>
 
   <script src="config.js"></script>
+  <script src="mercado.js"></script>
   <script type="module" src="admin.js"></script>
 </body>
 </html>

@@ -75,3 +75,13 @@
   .adm{padding-left:16px;padding-right:16px}
   .cota-campo input{font-size:38px}
 }
+
+.modo{border:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modo label{position:relative}
+.modo input{position:absolute;opacity:0}
+.modo span{display:block;border:1px solid var(--fio);border-radius:10px;padding:12px 14px;cursor:pointer;font-weight:500}
+.modo small{display:block;font-weight:400;font-size:13px;color:var(--apagado)}
+.modo input:checked+span{border-color:var(--ouro);background:rgba(201,163,92,.08)}
+.modo input:focus-visible+span{outline:2px solid var(--ouro);outline-offset:2px}
+.auto{display:grid;gap:12px;border:1px solid var(--fio);border-radius:10px;padding:16px}
+.auto>*{min-width:0}

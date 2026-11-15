@@ -7,6 +7,7 @@ Site de cotação e calculadora de câmbio: o cliente paga no PIX e recebe em **
 - Conversão direta pela cotação do dia: dólar = R$ por US$ 1; guarani = Gs. por R$ 1.
 - Botão "Fazer pedido no WhatsApp" abre a conversa com nome, valor do PIX, moeda e cotação.
 - O site busca a cotação no banco a cada 30 segundos e quando a aba volta a ficar visível.
+- **Cotação manual ou automática** (escolha no painel). Na automática, o site consulta o mercado (AwesomeAPI; reserva: ExchangeRate-API) e aplica a margem da casa: dólar = mercado × (1 + margem); guarani = mercado × (1 − margem). Se as duas fontes falharem, usa a cotação manual.
 
 ## Publicação
 Site 100% estático (HTML/CSS/JS, sem build).
