@@ -85,3 +85,5 @@
 .modo input:focus-visible+span{outline:2px solid var(--ouro);outline-offset:2px}
 .auto{display:grid;gap:12px;border:1px solid var(--fio);border-radius:10px;padding:16px}
 .auto>*{min-width:0}
+.cotas.reserva .cota{opacity:.6}.cotas.reserva .cota-campo input{font-size:28px}
+#tituloManual b{color:var(--marfim);font-weight:500}

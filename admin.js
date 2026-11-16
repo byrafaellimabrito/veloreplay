@@ -94,6 +94,7 @@ function mostrarModo() {
   const auto = modoAtual() === "auto";
   $("blocoAuto").hidden = !auto;
   $("tituloManual").hidden = !auto;
+  $("cotas").classList.toggle("reserva", auto);
   $("btnCot").textContent = auto ? "Salvar e usar cotação automática" : "Publicar cotação";
   if (auto && !mercado) atualizarMercado();
   previaAuto();
