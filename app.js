@@ -20,6 +20,7 @@
     entrega: C.entrega && C.entrega.ativo ? C.entrega : null,
     arred: C.arredondarGuarani && C.arredondarGuarani.ativo && C.arredondarGuarani.multiplo > 1 ? C.arredondarGuarani.multiplo : 0
   });
+  const detalhes = () => C.exibirDetalhes !== false; // painel: mostrar cotação e taxa ao cliente
   const forma = () => (document.querySelector('input[name="forma"]:checked') || {}).value || "retirada";
   const taxaPorFaixa = (brl, faixas) => {
     for (const f of faixas || []) if (f.ate == null || brl <= f.ate) return +f.taxa || 0;
@@ -46,10 +47,11 @@
     $("outPYG").textContent = "Gs. " + fmt(r.pyg, 0);
     $("taxaUSD").textContent = "US$ 1 = R$ " + fmt(C.cotacao.usd, 2);
     $("taxaPYG").textContent = "R$ 1 = Gs. " + fmt(C.cotacao.pyg, 0);
+    $("taxaUSD").hidden = $("taxaPYG").hidden = !detalhes();
     $("notasPYG").hidden = !opc().arred;
     $("notasPYG").textContent = opc().arred ? "Em notas de " + fmt(opc().arred, 0) : "";
     const d = $("descontos");
-    d.hidden = !(r.taxa || r.entrega);
+    d.hidden = !detalhes() || !(r.taxa || r.entrega);
     d.innerHTML = (r.taxa ? `<dt>Taxa de serviço</dt><dd>− R$ ${fmt(r.taxa, 2)}</dd>` : "") +
       (r.entrega ? `<dt>Entrega</dt><dd>− R$ ${fmt(r.entrega, 2)}</dd>` : "") +
       `<dt class="total">Valor convertido</dt><dd class="total">R$ ${fmt(r.base, 2)}</dd>`;
@@ -95,7 +97,7 @@
     if (o.entrega) $("lblEntrega").textContent = +o.entrega.taxa ? "+ R$ " + fmt(+o.entrega.taxa, 2) : "Sem custo";
     const pontos = (o.entrega && o.entrega.pontos) || [];
     $("pontoRetirada").innerHTML = pontos.map((p) => `<option>${esc(p)}</option>`).join("");
-    $("notaTaxa").hidden = !o.taxas;
+    $("notaTaxa").hidden = !o.taxas || !detalhes();
     $("notaTaxa").textContent = o.taxas ? "A taxa de serviço é descontada do valor do PIX e varia conforme o valor enviado." : "";
     const zap = "https://wa.me/" + C.whatsapp + "?text=" + encodeURIComponent("Olá! Quero fazer um câmbio pela Vélore Pay.");
     $("linkZap").href = zap;
@@ -138,12 +140,12 @@
       "",
       "Nome: " + nome,
       "Vou enviar no PIX: R$ " + fmt(brl, 2),
-      ...(r.taxa ? ["Taxa de serviço: R$ " + fmt(r.taxa, 2)] : []),
+      ...(r.taxa && detalhes() ? ["Taxa de serviço: R$ " + fmt(r.taxa, 2)] : []),
       ...(r.entrega ? ["Entrega: R$ " + fmt(r.entrega, 2)] : []),
-      ...(r.taxa || r.entrega ? ["Valor convertido: R$ " + fmt(r.base, 2)] : []),
+      ...((r.taxa || r.entrega) && detalhes() ? ["Valor convertido: R$ " + fmt(r.base, 2)] : []),
       m === "usd"
-        ? "Quero receber: US$ " + fmt(r.usd, 2) + " (US$ 1 = R$ " + fmt(C.cotacao.usd, 2) + ")"
-        : "Quero receber: Gs. " + fmt(r.pyg, 0) + " (R$ 1 = Gs. " + fmt(C.cotacao.pyg, 0) + ")",
+        ? "Quero receber: US$ " + fmt(r.usd, 2) + (detalhes() ? " (US$ 1 = R$ " + fmt(C.cotacao.usd, 2) + ")" : "")
+        : "Quero receber: Gs. " + fmt(r.pyg, 0) + (detalhes() ? " (R$ 1 = Gs. " + fmt(C.cotacao.pyg, 0) + ")" : ""),
       ...(opc().entrega ? ["", forma() === "entrega" ? "Entrega em: " + ($("endereco").value.trim() || "(vou informar)") : "Retirada" + ($("pontoRetirada").value ? ": " + $("pontoRetirada").value : "")] : []),
       "",
       "Aguardo a confirmação para fazer o PIX."

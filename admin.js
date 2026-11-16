@@ -67,6 +67,7 @@ async function carregar() {
     `<div><input aria-label="Dia" value="${esc(h.dia)}" placeholder="Seg a Sex" /><input aria-label="Horário" value="${esc(h.hora)}" placeholder="09h às 17h" /></div>`).join("");
   // opcionais
   const t = dados.taxas || {}, en = dados.entrega || {}, ar = dados.arredondarGuarani || {};
+  $("detalhesAtivo").checked = dados.exibirDetalhes !== false;
   $("taxasAtivo").checked = !!t.ativo;
   renderFaixas(t.faixas?.length ? t.faixas : [{ ate: 100, taxa: 5 }, { ate: 500, taxa: 10 }, { ate: null, taxa: 20 }]);
   $("entregaAtivo").checked = !!en.ativo;
@@ -170,6 +171,7 @@ $("formOpc").addEventListener("submit", (e) => {
   if ($("arredAtivo").checked && !(mult > 1)) return msg("msgOpc", "Informe o múltiplo do arredondamento, por exemplo 50.000.", "erro");
   salvar({
     ...dados,
+    exibirDetalhes: $("detalhesAtivo").checked,
     taxas: { ativo: $("taxasAtivo").checked, faixas },
     entrega: { ativo: $("entregaAtivo").checked, taxa: isNaN(te) ? 0 : te, pontos: $("pontos").value.split("\n").map((x) => x.trim()).filter(Boolean) },
     arredondarGuarani: { ativo: $("arredAtivo").checked, multiplo: isNaN(mult) ? 50000 : mult }
